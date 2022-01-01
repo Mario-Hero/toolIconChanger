@@ -14,7 +14,7 @@ Python 3.x
 
 # 用法
 
-打包下载我的这个[GITHUB项目](https://github.com/Mario-Hero/toolIconChanger)所有文件。我一般给脚本建一个桌面快捷方式，方便使用。
+打包下载这个GITHUB项目所有文件。我一般给脚本建一个桌面快捷方式，方便使用。
 
 一般情况下，用户只要把所需的封面图片命名为"cover.jpg"或"cover.png"，放入文件夹下，再把文件夹拖入脚本或快捷方式即可给文件夹添加封面。
 
@@ -45,4 +45,4 @@ The MIT License (MIT)
 
 # 欢迎打赏！感谢支持！
 
-<img src="https://files-cdn.cnblogs.com/files/mariocanfly/wechat.bmp" style="zoom:30%;" />
+![](https://files-cdn.cnblogs.com/files/mariocanfly/wechat.bmp)
