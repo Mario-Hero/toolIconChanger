@@ -4,14 +4,19 @@
 # Created by Mario Chen, 01.01.2022, Shenzhen
 # My Github site: https://github.com/Mario-Hero
 
-import os, codecs, sys
-import win32con, win32api
+import codecs
+import os
+import platform
+import sys
 from shutil import copyfile
+
+import win32api
+import win32con
 
 # you can change it >>>>>
 
 REBUILD_ICON = False  # Set it True to rebuild icons of all select folders
-IGNORE_CHILD_FOLDERS = False  # Set it True to not change icons of child folders
+IGNORE_CHILD_FOLDERS = True  # Set it True to not change icons of child folders
 CAPTURE_VIDEO_SCREENSHOT = True  # Set it True to capture screenshot of videos in order to make icons of folders
 
 # <<<<< you can change it
@@ -85,8 +90,9 @@ def setIcon(parent):
         win32api.SetFileAttributes(desktop_ini, win32con.FILE_ATTRIBUTE_HIDDEN + win32con.FILE_ATTRIBUTE_SYSTEM)
         # win32api.SetFileAttributes(parent, win32con.FILE_ATTRIBUTE_READONLY + win32con.FILE_ATTRIBUTE_SYSTEM)
         win32api.SetFileAttributes(parent, win32con.FILE_ATTRIBUTE_READONLY)
+        return True
     except:
-        return
+        return False
 
 
 def findIconFile(parent):
@@ -106,7 +112,7 @@ def findIconFile(parent):
                             os.rename(os.path.join(parent, file), os.path.join(parent, "icon.ico"))
                             return True
                         else:
-                            if REBUILD_ICON:
+                            if REBUILD_ICON or rootFolder == parent:
                                 os.remove(os.path.join(parent, "icon.ico"))
                             else:
                                 return True
@@ -151,22 +157,22 @@ def findIconFile(parent):
             return False
 
 
-def getFrame(video_name, img_name):
-    vidcap = cv2.VideoCapture(video_name)
-    if vidcap.isOpened():
-        frame_num = vidcap.get(7)
-        # rate = vidcap.get(5)
+def getFrame(vidName, imgName):
+    vidCapture = cv2.VideoCapture(vidName)
+    if vidCapture.isOpened():
+        frameNumber = vidCapture.get(7)
+        # rate = vidCapture.get(5)
     else:
         return False
-    cutN = 6
+    cutTime = 5
     frames = []
-    lightEst = 1
+    lightestTime = 1
     lightValue = 0
     notSuccessNumber = 0
-    for i in range(1, cutN):
-        vidcap.set(cv2.CAP_PROP_POS_MSEC, int((frame_num / cutN) * i))
-        # print("f: "+str(int((frame_num/cutN)*i)))
-        success, image = vidcap.read()
+    for i in range(1, cutTime):
+        vidCapture.set(cv2.CAP_PROP_POS_MSEC, int((frameNumber / cutTime) * i))
+        # print("f: "+str(int((frameNumber/cutTime)*i)))
+        success, image = vidCapture.read()
         if success:
             frames.append(image)
             # cv2.imshow("img",image)
@@ -176,16 +182,16 @@ def getFrame(video_name, img_name):
             # print(meanValue)
             if meanValue > lightValue:
                 lightValue = meanValue
-                lightEst = i
+                lightestTime = i
         else:
             notSuccessNumber += 1
-    if notSuccessNumber >= cutN - 1:
+    if notSuccessNumber >= cutTime - 1:
         return False
-    if os.path.exists(img_name):
-        os.remove(img_name)
-    cv2.imencode('.jpg', frames[lightEst - 1 - notSuccessNumber])[1].tofile(img_name)
+    if os.path.exists(imgName):
+        os.remove(imgName)
+    cv2.imencode('.jpg', frames[lightestTime - 1 - notSuccessNumber])[1].tofile(imgName)
     return True
-    # print(cv2.imwrite(img_name, image))
+    # print(cv2.imwrite(imgName, image))
 
 
 if __name__ == "__main__":
@@ -198,4 +204,40 @@ if __name__ == "__main__":
             if os.path.isdir(folder):
                 rootFolder = folder
                 toolIconChanger(folder)
+            elif os.path.isfile(folder):
+                parent = os.path.split(folder)[0]
+                icoPath = os.path.join(parent, "icon.ico")
+                isPic = False
+                for ext in picExt:
+                    if folder.endswith(ext):
+                        if os.path.exists(icoPath):
+                            os.remove(icoPath)
+                        cmd = ".\\convert.exe \"" + folder + "\" -resize 256x256 -background white -gravity center -extent 256x256 \"" + icoPath + "\""
+                        # img = PythonMagick.Image(os.path.join(parent, iconFile))
+                        # img.sample('256x256',"white")
+                        # img.write(os.path.join(parent, "icon.ico"))
+                        if os.system(cmd) == 0:
+                            print(parent)
+                            setIcon(parent)
+                            isPic = True
+                        break
+                if not isPic and CAPTURE_VIDEO_SCREENSHOT:
+                    for ext in vidExt:
+                        if folder.endswith(ext):
+                            if os.path.exists(os.path.join(parent, "cover.jpg")):
+                                os.remove(os.path.join(parent, "cover.jpg"))
+                            if getFrame(folder, os.path.join(parent, "cover.jpg")):
+                                cmd = ".\\convert.exe \"" + os.path.join(parent,
+                                                                         "cover.jpg") + "\" -resize 256x256 -background white -gravity center -extent 256x256 \"" + icoPath + "\""
+                                if os.path.exists(icoPath):
+                                    os.remove(icoPath)
+                                if os.system(cmd) == 0:
+                                    print(parent)
+                                    setIcon(parent)
+                            break
+    platformName = platform.platform()
+    if platformName.startswith("Windows-10"):  # also include Windows-11
+        os.system("ie4uinit.exe -show")  # Clear Icon Cache
+    elif platformName.startswith("Windows-7"):
+        os.system("ie4uinit.exe -ClearIconCache")  # Clear Icon Cache
     # os.system("pause")
