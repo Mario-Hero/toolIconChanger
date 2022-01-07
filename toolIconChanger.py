@@ -16,7 +16,7 @@ import win32con
 # you can change it >>>>>
 
 REBUILD_ICON = False  # Set it True to rebuild icons of all select folders
-IGNORE_CHILD_FOLDERS = True  # Set it True to not change icons of child folders
+IGNORE_CHILD_FOLDERS = False  # Set it True to not change icons of child folders
 CAPTURE_VIDEO_SCREENSHOT = True  # Set it True to capture screenshot of videos in order to make icons of folders
 
 # <<<<< you can change it
