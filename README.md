@@ -26,6 +26,10 @@ Download all the files of this project.
 
 Put the cover photo into the folder, and then drag it onto the script or shortcut of script to add a cover to the folder.
 
+如果文件夹封面没有变化，可以右键C盘->属性->磁盘清理->删除缩略图，来清除缩略图缓存。
+
+If the cover of folder has not changed, you can clear the thumbnail cache by right-clicking disk C -> Properties -> Disk cleanup -> Delete thumbnail.
+
 对于本来就装满了图片的文件夹，不需要特意去找个cover图片，直接自动添加封面后也更美观、更好区分。
 
 For a folder which is already full of pictures, you don't need to find a cover picture. Just drag the folder to the script directly will make the folder more beautiful and better distinguished.
