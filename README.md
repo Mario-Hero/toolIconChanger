@@ -59,6 +59,8 @@ Capturing the video screenshot is not very effective. The cover of *Friends* is 
 
 When REBUILD_ICON = false, if the subfolder already has a cover, the cover of the subfolder will not be modified, but the cover of the folder dragged into the script by the user will still be modified. When REBUILD_ICON = true, the covers of subfolders and folders dragged by users will still be modified.
 
+当SET_LAST_IMG_AS_ICON = True时，在找不到名为cover的图片时，会使用名称顺序的最后一张图片为封面； 为False时会使用名称顺序第一张图片为封面。When SET_LAST_IMG_AS_ICON = True, when the picture named *cover* cannot be found, the last picture in order of name will be set as the cover; When it is false, the first picture is the cover.
+
 # 实现原理 Principles of implementing 
 
 把用户的图片通过ImageMagick的convert.exe转换成ico格式。或者用OpenCV读取视频的帧，导出图片，转换成ico格式。再修改文件夹下的desktop.ini，添加封面路径为"icon.ico"即可。
