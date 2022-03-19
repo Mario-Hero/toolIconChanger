@@ -18,6 +18,7 @@ import win32con
 REBUILD_ICON = False  # Set it True to rebuild icons of all select folders
 IGNORE_CHILD_FOLDERS = False  # Set it True to not change icons of child folders
 CAPTURE_VIDEO_SCREENSHOT = True  # Set it True to capture screenshot of videos in order to make icons of folders
+SET_LAST_IMG_AS_ICON = False  # Set it True to use the last image in current folder as the icon of current folder.
 
 # <<<<< you can change it
 
@@ -131,7 +132,9 @@ def findIconFile(parent):
                         if file.startswith('cover.'):
                             foundIcon = file
                         else:
-                            if not iconFile:
+                            if SET_LAST_IMG_AS_ICON:
+                                iconFile = file
+                            elif not iconFile:
                                 iconFile = file
                     fileIsPic = True
                     break
@@ -153,10 +156,14 @@ def findIconFile(parent):
         # return subprocess.call([".\\convert.exe",os.path.join(parent,iconFile),"-resize 256x256 -background white -gravity center -extent 256x256",os.path.join(parent, "icon.ico")]) == 0
     else:
         if iconVideoFile and CAPTURE_VIDEO_SCREENSHOT:
-            if os.path.exists(os.path.join(parent, "cover.jpg")):
-                os.remove(os.path.join(parent, "cover.jpg"))
-            if getFrame(iconVideoFile, os.path.join(parent, "cover.jpg")):
-                return tranIco(os.path.join(parent, "cover.jpg"), os.path.join(parent, "icon.ico"))
+            vidCoverPath = os.path.join(parent, "cover.jpg")
+            if os.path.exists(vidCoverPath):
+                os.remove(vidCoverPath)
+            if getFrame(iconVideoFile, vidCoverPath):
+                vidResult = tranIco(vidCoverPath, os.path.join(parent, "icon.ico"))
+                if vidResult:
+                    os.remove(vidCoverPath)
+                return vidResult
                 # cmd = ".\\convert.exe \"" + os.path.join(parent,"cover.jpg") + "\" -resize 256x256 -background white -gravity center -extent 256x256 \"" + os.path.join(parent, "icon.ico") + "\""
                 # return subprocess.call([".\\convert.exe",os.path.join(parent,"cover.jpg"),"-resize 256x256 -background white -gravity center -extent 256x256",os.path.join(parent, "icon.ico")]) == 0
             else:
@@ -230,15 +237,17 @@ if __name__ == "__main__":
                 if not isPic and CAPTURE_VIDEO_SCREENSHOT:
                     for ext in VID_EXT:
                         if folderLower.endswith(ext):
-                            if os.path.exists(os.path.join(parentFolder, "cover.jpg")):
-                                os.remove(os.path.join(parentFolder, "cover.jpg"))
-                            if getFrame(folder, os.path.join(parentFolder, "cover.jpg")):
+                            coverPath = os.path.join(parentFolder, "cover.jpg")
+                            if os.path.exists(coverPath):
+                                os.remove(coverPath)
+                            if getFrame(folder, coverPath):
                                 # cmd = ".\\convert.exe \"" + os.path.join(parentFolder,"cover.jpg") + "\" -resize 256x256 -background white -gravity center -extent 256x256 \"" + icoPath + "\""
                                 if os.path.exists(icoPath):
                                     os.remove(icoPath)
-                                if tranIco(os.path.join(parentFolder, "cover.jpg"), icoPath):
+                                if tranIco(coverPath, icoPath):
                                     print(parentFolder)
                                     setIcon(parentFolder)
+                                    os.remove(coverPath)
                             break
 
     platformName = platform.platform()
